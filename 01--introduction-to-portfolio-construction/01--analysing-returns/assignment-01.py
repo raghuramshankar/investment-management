@@ -5,6 +5,8 @@ import sys
 if '__ipython__':
     sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(os.getcwd()))))
     sys.path.append(os.path.join(os.path.dirname(os.getcwd()), '..', 'funcs'))
+    %load_ext autoreload
+    %autoreload 2
 
 import scipy.stats
 import funcs.risk_kit as rk
@@ -15,11 +17,11 @@ returns_slice_m = df["1999":"2015"].get(["Lo 20", "Hi 20"])/100
 
 returns_y, volatility_y = rk.annualized_from_monthly(returns_m)
 returns_slice_y, volatility_slice_y = rk.annualized_from_monthly(returns_slice_m)
-drawdown_slice_idxmin, drawdown_slice_min = rk.max_drawdown(returns_slice_m)
+_, drawdown_slice_idxmin, drawdown_slice_min = rk.max_drawdown(returns_slice_m)
 
 df = rk.read_dataframe('edhec-hedgefundindices.csv', '%d/%m/%Y')
 returns_m = df["2009":"2018"]
-negative_semi_deviation = returns_m[returns_m<0].std(ddof=0)
+negative_semi_deviation = rk.negative_semideviation(returns_m)
 skewness = rk.skew(returns_m)
 kurtosis = rk.kurtosis(returns_m)
 
