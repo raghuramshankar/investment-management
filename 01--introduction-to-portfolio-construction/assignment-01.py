@@ -4,12 +4,11 @@ import sys
 
 if '__ipython__':
     sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(os.getcwd()))))
-    sys.path.append(os.path.join(os.path.dirname(os.getcwd()), '..', 'funcs'))
+    sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'funcs'))
     %load_ext autoreload
     %autoreload 2
 
-import scipy.stats
-import funcs.risk_kit as rk
+import risk_kit as rk
 
 df = rk.read_dataframe('Portfolios_Formed_on_ME_monthly_EW.csv', "%Y%m")
 returns_m = df.get(["Lo 20", "Hi 20"])/100

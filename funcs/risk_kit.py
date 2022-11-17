@@ -3,7 +3,7 @@ import numpy as np
 import scipy.stats
 
 def read_dataframe(filename, format):
-    df = pd.read_csv('../data/' + filename, header=0, index_col=0)
+    df = pd.read_csv('data/' + filename, header=0, index_col=0)
     df.index = pd.to_datetime(pd.to_datetime(df.index, format=format))
     df.columns = df.columns.str.strip()
     return df
