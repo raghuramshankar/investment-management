@@ -3,15 +3,17 @@ import numpy as np
 import scipy.stats
 
 def read_dataframe(filename, format):
-    df = pd.read_csv('data/' + filename, header=0, index_col=0)
+    df = pd.read_csv('data/' + filename, header=0, index_col=0)/100
     df.index = pd.to_datetime(pd.to_datetime(df.index, format=format))
     df.columns = df.columns.str.strip()
+    # print("Dataframe in %: \n", df)
     return df
 
 def annualized_returns(returns, period):
-    total_returns = (returns + 1).prod() - 1
-    returns_y = ((total_returns + 1)**(period/len(returns)) - 1) * 100
-    volatility_y = (returns.std() * np.sqrt(period))* 100
+    total_returns = (returns + 1).prod()
+    returns_y = total_returns**(period/len(returns)) - 1
+    volatility_y = (returns.std() * np.sqrt(period))
+    # print("Returns and volatility as a fraction: \n", (returns_y, volatility_y))
     return returns_y, volatility_y
 
 def max_drawdown(returns):
@@ -19,7 +21,8 @@ def max_drawdown(returns):
     previous_peaks = wealth_index.cummax()
     drawdown = (wealth_index - previous_peaks)/previous_peaks
     drawdown_idxmin = drawdown.idxmin()
-    drawdown_min = drawdown.min() * 100
+    drawdown_min = drawdown.min()
+    print("Max drawdown as a fraction: \n", drawdown.plot.line())
     return drawdown, drawdown_idxmin, drawdown_min
 
 def jb_test(returns, level=0.01):
@@ -57,3 +60,20 @@ def sharpe_ratio(returns, period, risk_free_rate_m=3):
     excess_returns_y, _ = annualized_returns(excess_returns, period)
     _, volatility_y = annualized_returns(returns, period)
     return excess_returns_y/volatility_y
+
+def portfolio_returns(returns, weights):
+    # weights = np.reshape(weights, (np.shape(weights)[0], 1))
+    return weights.T @ returns
+
+def portfolio_volatility(covariance, weights):
+    # weights = np.reshape(weights, (np.shape(weights)[0], 1))
+    return (weights.T @ covariance @ weights)**0.5
+
+def efficient_frontier(returns):
+    returns_y, _ = annualized_returns(returns, 12)
+    weights = [np.array([w, 1-w]) for w in np.linspace(0, 1, 100)]
+    returns_p = [portfolio_returns(returns_y, w) for w in weights]
+    volatility_p = [portfolio_volatility(returns.cov(), w) for w in weights]
+    df_frontier = pd.DataFrame({"Returns": returns_p, "Volatility": volatility_p})
+    df_frontier.plot.scatter(x="Volatility", y = "Returns")
+    return df_frontier
